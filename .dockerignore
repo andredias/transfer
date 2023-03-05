@@ -1,0 +1,6 @@
+*
+!pyproject.toml
+!poetry.lock
+!hypercorn.toml
+!transfer/
+**/__pycache__
