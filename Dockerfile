@@ -11,6 +11,8 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+# Poetry 1.4.0 has a bug that prevents it from installing Hypercorn
+ENV POETRY_VERSION=1.3.1
 RUN curl https://install.python-poetry.org | python -
 
 RUN python -m venv /venv
@@ -18,8 +20,9 @@ ENV PATH=/venv/bin:/root/.local/bin:${PATH}
 
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
+
 RUN . /venv/bin/activate; \
-    poetry install --no-dev
+    poetry install --only main --no-interaction
 
 # ---------------------------------------------------------
 
