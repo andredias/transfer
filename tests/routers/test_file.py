@@ -18,6 +18,8 @@ async def test_upload_file_ok(tmp_path: Path, client: AsyncClient) -> None:
         resp = await client.post('/', files={'file': open(str(filename), 'rb')})
     assert resp.status_code == status.HTTP_201_CREATED
     assert resp.headers['Location'] == resp.text == f'http://testserver/{token}/{filename.name}'
+    path = Path(config.UPLOAD_DIR / token / filename.name)
+    assert path.read_text() == 'hello world'
 
 
 @patch.dict(config.__dict__, {'FILE_SIZE_LIMIT': SIZE_LIMIT})
@@ -52,4 +54,22 @@ async def test_download_non_existing_file(client: AsyncClient) -> None:
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     filename = 'non_existing.txt'
     resp = await client.get(f'/{token}/{filename}')
+    assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_delete_existing_file(client: AsyncClient) -> None:
+    filename = 'tralala.txt'
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    path = config.UPLOAD_DIR / token / filename
+    path.parent.mkdir()
+    path.write_text('Hello world')
+    resp = await client.delete(f'/{token}/{filename}')
+    assert resp.status_code == status.HTTP_204_NO_CONTENT
+    assert not path.exists()
+
+
+async def test_delete_non_existing_file(client: AsyncClient) -> None:
+    filename = 'non_existing.txt'
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    resp = await client.delete(f'/{token}/{filename}')
     assert resp.status_code == status.HTTP_404_NOT_FOUND

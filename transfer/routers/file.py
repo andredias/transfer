@@ -72,3 +72,20 @@ async def download_file(
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return FileResponse(path)
+
+
+@router.delete('/{token}/{filename}', status_code=status.HTTP_204_NO_CONTENT)
+async def delete_file(
+    token: str,
+    filename: str,
+) -> None:
+    """
+    Delete a file
+
+    The token is the name of the directory where the file is stored.
+    """
+    path = config.UPLOAD_DIR / token / filename
+    if not path.exists():
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    path.unlink()
+    return
