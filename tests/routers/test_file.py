@@ -34,3 +34,22 @@ async def test_upload_file_over_size_limit(tmp_path: Path, client: AsyncClient) 
         headers={'Content-Length': str(SIZE_LIMIT // 2)},
     )
     assert resp.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+
+
+async def test_download_existing_file(client: AsyncClient) -> None:
+    filename = 'tralala.txt'
+    content = 'Hello world'
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    path = config.UPLOAD_DIR / token / filename
+    path.parent.mkdir()
+    path.write_text(content)
+    resp = await client.get(f'/{token}/{filename}')
+    assert resp.status_code == status.HTTP_200_OK
+    assert resp.text == content
+
+
+async def test_download_non_existing_file(client: AsyncClient) -> None:
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    filename = 'non_existing.txt'
+    resp = await client.get(f'/{token}/{filename}')
+    assert resp.status_code == status.HTTP_404_NOT_FOUND

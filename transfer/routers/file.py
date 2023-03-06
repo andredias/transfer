@@ -4,7 +4,7 @@ from urllib.parse import urljoin
 
 import aiofiles
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, UploadFile, status
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import FileResponse, PlainTextResponse
 from loguru import logger
 
 from .. import config
@@ -56,3 +56,19 @@ async def upload_file(
     location = urljoin(request.url._url, f'{router.prefix}/{path.relative_to(config.UPLOAD_DIR)}')
     response.headers['Location'] = location
     return location
+
+
+@router.get('/{token}/{filename}', status_code=status.HTTP_200_OK)
+async def download_file(
+    token: str,
+    filename: str,
+) -> FileResponse:
+    """
+    Download a file
+
+    The token is the name of the directory where the file is stored.
+    """
+    path = config.UPLOAD_DIR / token / filename
+    if not path.exists():
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return FileResponse(path)
