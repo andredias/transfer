@@ -19,7 +19,7 @@ python-dotenv = "*"
 python-multipart = "*"
 uvloop = "*"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 asgi-lifespan = "*"
 alt-pytest-asyncio = "*"
 blue = "*"
@@ -29,6 +29,7 @@ pip-audit = "*"
 pytest = "*"
 pytest-cov = "*"
 ruff = "*"
+types-aiofiles = "*"
 
 [tool.blue]
 line-length = 100
