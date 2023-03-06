@@ -21,4 +21,5 @@ MiB: Final[int] = 2**20
 
 BUFFER_SIZE: int = int(os.getenv('BUFFER_SIZE', 1 * MiB))
 FILE_SIZE_LIMIT: int = int(os.getenv('FILE_SIZE_LIMIT', 5 * MiB))
-UPLOAD_DIR: Path = Path(os.getenv('UPLOAD_DIR', '/dev/shm'))
+UPLOAD_DIR: Path = Path(os.getenv('UPLOAD_DIR', '/dev/shm'))  # noqa: S108
+TOKEN_LENGTH: int = int(os.getenv('TOKEN_LENGTH', 8))

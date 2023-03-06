@@ -13,8 +13,11 @@ SIZE_LIMIT = 2**10
 async def test_upload_file_ok(tmp_path: Path, client: AsyncClient) -> None:
     filename = tmp_path / 'dummy.txt'
     filename.write_text('hello world')
-    resp = await client.post('/', files={'file': open(str(filename), 'rb')})
-    assert resp.status_code == status.HTTP_200_OK
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    with patch('transfer.routers.file.secrets.token_urlsafe', return_value=token):
+        resp = await client.post('/', files={'file': open(str(filename), 'rb')})
+    assert resp.status_code == status.HTTP_201_CREATED
+    assert resp.headers['Location'] == resp.text == f'http://testserver/{token}/{filename.name}'
 
 
 @patch.dict(config.__dict__, {'FILE_SIZE_LIMIT': SIZE_LIMIT})
