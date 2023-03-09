@@ -23,3 +23,4 @@ BUFFER_SIZE: int = int(os.getenv('BUFFER_SIZE', 1 * MiB))
 FILE_SIZE_LIMIT: int = int(os.getenv('FILE_SIZE_LIMIT', 5 * MiB))
 UPLOAD_DIR: Path = Path(os.getenv('UPLOAD_DIR', '/dev/shm'))  # noqa: S108
 TOKEN_LENGTH: int = int(os.getenv('TOKEN_LENGTH', 8))
+TIMEOUT_INTERVAL: int = int(os.getenv('TIMEOUT_INTERVAL_MIN', 3_600))  # in seconds

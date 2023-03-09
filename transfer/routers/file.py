@@ -1,4 +1,5 @@
 import secrets
+from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
@@ -8,6 +9,8 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from loguru import logger
 
 from .. import config
+from ..file_utils import remove_file
+from ..resources import scheduler
 
 router = APIRouter()
 
@@ -55,6 +58,13 @@ async def upload_file(
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
     location = urljoin(request.url._url, f'{router.prefix}/{path.relative_to(config.UPLOAD_DIR)}')
     response.headers['Location'] = location
+    # schedule file removal
+    scheduler.add_job(
+        remove_file,
+        'date',
+        run_date=datetime.utcnow() + timedelta(seconds=config.TIMEOUT_INTERVAL),
+        args=[path],
+    )
     return location
 
 
