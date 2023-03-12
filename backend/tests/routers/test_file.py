@@ -10,7 +10,7 @@ from transfer import config
 SIZE_LIMIT = 2**10
 
 
-async def test_upload_file_ok(tmp_path: Path, client: AsyncClient) -> None:
+async def test_upload_file_ok_local(tmp_path: Path, client: AsyncClient) -> None:
     filename = tmp_path / 'dummy.txt'
     filename.write_text('hello world')
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
@@ -18,6 +18,26 @@ async def test_upload_file_ok(tmp_path: Path, client: AsyncClient) -> None:
         resp = await client.post('/', files={'file': open(str(filename), 'rb')})
     assert resp.status_code == status.HTTP_201_CREATED
     assert resp.headers['Location'] == resp.text == f'http://testserver/{token}/{filename.name}'
+    path = Path(config.UPLOAD_DIR / token / filename.name)
+    assert path.read_text() == 'hello world'
+
+
+async def test_upload_file_ok_proxy_server(tmp_path: Path, client: AsyncClient) -> None:
+    filename = tmp_path / 'hello.txt'
+    filename.write_text('hello world')
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    with patch('transfer.routers.file.secrets.token_urlsafe', return_value=token):
+        resp = await client.post(
+            '/',
+            files={'file': open(str(filename), 'rb')},
+            headers={'X-Forwarded-Proto': 'https', 'X-Forwarded-Host': 'transfer.pronus.io'},
+        )
+    assert resp.status_code == status.HTTP_201_CREATED
+    assert (
+        resp.headers['Location']
+        == resp.text
+        == f'https://transfer.pronus.io/{token}/{filename.name}'
+    )
     path = Path(config.UPLOAD_DIR / token / filename.name)
     assert path.read_text() == 'hello world'
 

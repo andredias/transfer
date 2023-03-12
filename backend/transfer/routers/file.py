@@ -56,7 +56,15 @@ async def upload_file(
     if overflow:
         path.unlink()
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
-    location = urljoin(request.url._url, f'{router.prefix}/{path.relative_to(config.UPLOAD_DIR)}')
+    if request.headers.get('X-Forwarded-Proto'):  # served by a reverse proxy
+        location = urljoin(
+            f'{request.headers["X-Forwarded-Proto"]}://{request.headers["X-Forwarded-Host"]}',
+            f'{request.url.path}{router.prefix}{path.relative_to(config.UPLOAD_DIR)}',
+        )
+    else:  # served directly
+        location = urljoin(
+            request.url._url, f'{router.prefix}/{path.relative_to(config.UPLOAD_DIR)}'
+        )
     response.headers['Location'] = location
     # schedule file removal
     scheduler.add_job(
