@@ -66,6 +66,7 @@ async def test_delete_existing_file(client: AsyncClient) -> None:
     resp = await client.delete(f'/{token}/{filename}')
     assert resp.status_code == status.HTTP_204_NO_CONTENT
     assert not path.exists()
+    assert not path.parent.exists()
 
 
 async def test_delete_non_existing_file(client: AsyncClient) -> None:

@@ -7,7 +7,7 @@ from loguru import logger
 from . import config
 
 
-def remove_file(path: Path) -> None:
+def remove_file_and_parent(path: Path) -> None:
     """
     Remove a file and its parent directory
     """
@@ -22,4 +22,4 @@ def timeout_job() -> None:
     timeout_ref = time() - config.TIMEOUT_INTERVAL
     for path in config.UPLOAD_DIR.glob('*/*'):
         if path.stat().st_mtime < timeout_ref:
-            remove_file(path)
+            remove_file_and_parent(path)

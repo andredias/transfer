@@ -4,7 +4,7 @@ from time import time
 from unittest.mock import patch
 
 from transfer import config
-from transfer.file_utils import remove_file, timeout_job
+from transfer.file_utils import remove_file_and_parent, timeout_job
 
 
 def test_remove_file() -> None:
@@ -16,7 +16,7 @@ def test_remove_file() -> None:
     path.parent.mkdir(parents=True)
     path.write_text('dummy')
     assert path.exists()
-    remove_file(path)
+    remove_file_and_parent(path)
     assert not path.exists()
     assert not path.parent.exists()
 

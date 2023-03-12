@@ -9,7 +9,7 @@ from fastapi.responses import FileResponse, PlainTextResponse
 from loguru import logger
 
 from .. import config
-from ..file_utils import remove_file
+from ..file_utils import remove_file_and_parent
 from ..resources import scheduler
 
 router = APIRouter()
@@ -60,7 +60,7 @@ async def upload_file(
     response.headers['Location'] = location
     # schedule file removal
     scheduler.add_job(
-        remove_file,
+        remove_file_and_parent,
         'date',
         run_date=datetime.utcnow() + timedelta(seconds=config.TIMEOUT_INTERVAL),
         args=[path],
@@ -97,5 +97,5 @@ async def delete_file(
     path = config.UPLOAD_DIR / token / filename
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    path.unlink()
+    remove_file_and_parent(path)
     return
