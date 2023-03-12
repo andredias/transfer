@@ -2,5 +2,6 @@
 !pyproject.toml
 !poetry.lock
 !hypercorn.toml
+!selfsigned.*
 !transfer/
 **/__pycache__

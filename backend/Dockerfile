@@ -30,12 +30,15 @@ FROM python:3.11-slim as final
 
 COPY --from=builder /venv /venv
 ENV PATH=/venv/bin:${PATH}
+ENV ROOT_PATH=/
 
 WORKDIR /app
 USER nobody
 COPY --chown=nobody:nogroup hypercorn.toml .
+COPY --chown=nobody:nogroup selfsigned.* .
 COPY --chown=nobody:nogroup transfer/ ./transfer
 
 EXPOSE 5000
 
-CMD ["hypercorn", "--config=hypercorn.toml", "transfer.main:app"]
+CMD hypercorn --config=hypercorn.toml --keyfile=selfsigned.key  \
+    --certfile=/selfsigned.crt --root-path=${ROOT_PATH} transfer.main:app

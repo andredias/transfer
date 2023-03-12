@@ -1,0 +1,25 @@
+# Common Caddyfile Patterns - Single-page apps (SPA)
+# see: https://caddyserver.com/docs/caddyfile/patterns#single-page-apps-spas
+
+localhost {
+
+    handle_path /api* {
+        reverse_proxy https://api:5000 {
+            transport http {
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    handle {
+        root * /dist
+        try_files {path} /index.html
+        file_server
+    }
+
+    @compress_exts {
+        not path *.gif *.jpg *.png
+    }
+
+    encode @compress_exts gzip zstd
+}
