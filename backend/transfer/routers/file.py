@@ -54,7 +54,7 @@ async def upload_file(
                 break
             await out_file.write(content)
     if overflow:
-        path.unlink()
+        remove_file_and_parent(path)
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
     if request.headers.get('X-Forwarded-Proto'):  # served by a reverse proxy
         location = urljoin(

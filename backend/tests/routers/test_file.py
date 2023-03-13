@@ -50,12 +50,17 @@ async def test_upload_file_over_size_limit(tmp_path: Path, client: AsyncClient) 
     assert resp.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
 
     # try to cheat by setting Content-Length header
-    resp = await client.post(
-        '/',
-        files={'file': open(str(filename), 'rb')},
-        headers={'Content-Length': str(SIZE_LIMIT // 2)},
-    )
+    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
+    with patch('transfer.routers.file.secrets.token_urlsafe', return_value=token):
+        resp = await client.post(
+            '/',
+            files={'file': open(str(filename), 'rb')},
+            headers={'Content-Length': str(SIZE_LIMIT // 2)},
+        )
     assert resp.status_code == status.HTTP_413_REQUEST_ENTITY_TOO_LARGE
+    path = config.UPLOAD_DIR / token / filename.name
+    assert not path.exists()
+    assert not path.parent.exists()
 
 
 async def test_download_existing_file(client: AsyncClient) -> None:
