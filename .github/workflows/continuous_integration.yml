@@ -34,10 +34,10 @@ jobs:
           run: poetry install --no-interaction
 
         - name: Linting
-          run: make lint
+          run: poetry run make lint
 
         - name: Tests
-          run: make test
+          run: poetry run make test
 
         - name: Build Docker Image
           run: make build
