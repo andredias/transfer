@@ -36,7 +36,7 @@ WORKDIR /app
 USER nobody
 COPY --chown=nobody:nogroup entrypoint.sh .
 COPY --chown=nobody:nogroup hypercorn.toml .
-COPY --chown=nobody:nogroup selfsigned.* .
+COPY --chown=nobody:nogroup selfsigned.* ./
 COPY --chown=nobody:nogroup transfer/ ./transfer
 
 EXPOSE 5000
