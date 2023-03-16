@@ -12,7 +12,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 # Poetry 1.4.0 has a bug that prevents it from installing Hypercorn
-ENV POETRY_VERSION=1.3.1
+ENV POETRY_VERSION=1.3.2
 RUN curl https://install.python-poetry.org | python -
 
 RUN python -m venv /venv
@@ -34,11 +34,11 @@ ENV ROOT_PATH=/
 
 WORKDIR /app
 USER nobody
+COPY --chown=nobody:nogroup entrypoint.sh .
 COPY --chown=nobody:nogroup hypercorn.toml .
 COPY --chown=nobody:nogroup selfsigned.* .
 COPY --chown=nobody:nogroup transfer/ ./transfer
 
 EXPOSE 5000
 
-CMD hypercorn --config=hypercorn.toml --keyfile=selfsigned.key  \
-    --certfile=/selfsigned.crt --root-path=${ROOT_PATH} transfer.main:app
+ENTRYPOINT ["./entrypoint.sh"]

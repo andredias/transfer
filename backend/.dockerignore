@@ -1,6 +1,7 @@
 *
 !pyproject.toml
 !poetry.lock
+!entrypoint.sh
 !hypercorn.toml
 !selfsigned.*
 !transfer/

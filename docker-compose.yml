@@ -24,19 +24,8 @@ services:
         init: true
         shm_size: 100mb
         environment:
-            - ENV=development
             - ROOT_PATH=/api
         ports:
             - "5000:5000"
-        command:
-            [
-                "hypercorn",
-                "--config=hypercorn.toml",
-                "--reload",
-                "--keyfile=selfsigned.key",
-                "--certfile=selfsigned.crt",
-                "--root-path=/api",
-                "transfer.main:app"
-            ]
         volumes:
             - ./backend:/app
