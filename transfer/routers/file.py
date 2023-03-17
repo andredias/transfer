@@ -80,13 +80,20 @@ async def upload_file(
 async def download_file(
     token: str,
     filename: str,
+    request: Request,
 ) -> FileResponse:
     """
     Download a file
 
     The token is the name of the directory where the file is stored.
     """
-    path = config.UPLOAD_DIR / token / filename
+    if (
+        request.headers.get('Sec-Fetch-Dest') or len(token) < config.TOKEN_LENGTH
+    ):  # it came from a web page
+        path = Path('static', token, filename)
+    else:
+        path = config.UPLOAD_DIR / token / filename
+    logger.debug(f'Downloading file {path}')
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     return FileResponse(path)
@@ -107,3 +114,20 @@ async def delete_file(
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     remove_file_and_parent(path)
     return
+
+
+# The next routes handle static content
+
+
+@router.get('/', include_in_schema=False)
+async def index() -> FileResponse:
+    return FileResponse('static/index.html')
+
+
+@router.get('/{path:path}', include_in_schema=False)
+async def static_files(path: str) -> FileResponse:
+    logger.debug(f'Getting static file {path}')
+    filepath = Path('static', path)
+    if not filepath.exists():
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    return FileResponse(filepath)
