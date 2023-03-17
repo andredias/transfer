@@ -6,8 +6,8 @@ from .resources import shutdown, startup
 from .routers import file, hello
 
 routers = [
-    file.router,
     hello.router,
+    file.router,
 ]
 
 app = FastAPI(
