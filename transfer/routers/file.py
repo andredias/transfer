@@ -125,7 +125,7 @@ async def index() -> FileResponse:
 
 
 @router.get('/{path:path}', include_in_schema=False)
-async def static_files(path: str) -> FileResponse:
+async def serve_static_files(path: str) -> FileResponse:
     logger.debug(f'Getting static file {path}')
     filepath = Path('static', path)
     if not filepath.exists():
