@@ -1,6 +1,7 @@
 from string import ascii_uppercase
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from fastapi_limiter import FastAPILimiter
 from loguru import logger
 from redis.asyncio import Redis
 from tenacity import RetryError, retry, stop_after_delay, wait_exponential
@@ -16,6 +17,7 @@ async def startup() -> None:
     show_config()
     # insert here calls to connect to database and other services
     await connect_redis()
+    await FastAPILimiter.init(redis)
     scheduler.add_job(timeout_job, 'interval', days=1)
     scheduler.start()
     logger.info('started...')

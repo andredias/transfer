@@ -99,3 +99,13 @@ async def test_delete_non_existing_file(client: AsyncClient) -> None:
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     resp = await client.delete(f'/{token}/{filename}')
     assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_upload_rate_limit(tmp_path: Path, client: AsyncClient) -> None:
+    filename = tmp_path / 'dummy.txt'
+    filename.write_text('hello world')
+    for _ in range(config.RATE_LIMIT_TIMES):
+        resp = await client.post('/', files={'file': open(str(filename), 'rb')})
+        assert resp.status_code == status.HTTP_201_CREATED
+    resp = await client.post('/', files={'file': open(str(filename), 'rb')})
+    assert resp.status_code == status.HTTP_429_TOO_MANY_REQUESTS
