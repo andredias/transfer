@@ -91,5 +91,9 @@ Example using HTTPie_:
 Anyone can delete the file. No authentication is required.
 
 
+Disclaimer
+==========
+
+* The service does not provide any guarantee of availability or uptime.
 
 .. HTTPie: https://httpie.io/
