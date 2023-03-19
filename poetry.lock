@@ -1912,12 +1912,4 @@ h11 = ">=0.9.0,<1"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-<<<<<<< already edited
-<<<<<<< already edited
-content-hash = "4ac1ffe1dc5f2b0e32a01ddd133cae8d4b0eb7ba30928af3a94949ccc69e303a"
-=======
-content-hash = "55a5f2ca5b92bcf30ad2cfb82e5248be30150697ad6fb08729657ad88f016da3"
->>>>>>> current change
-=======
-content-hash = "268d445f3bbf9af3c57ecd20178f5685be58057b3f27f3c73c82ec86e1cfeb9b"
->>>>>>> current change
+content-hash = "c406c8811dc168f55849953368c3edeb596415c1c2bcaa45d945027935143e7f"
