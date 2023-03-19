@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+
+    redis:
+        container_name: redis
+        image: redis:latest
+        init: true
+        ports:
+            - ${REDIS_PORT:-6379}:6379
+
+    app:
+        container_name: transfer
+        image: transfer:latest
+        build:
+            context: .
+        init: true
+        ports:
+            - "5000:5000"
+        depends_on:
+            - redis
+        environment:
+            REDIS_HOST: redis

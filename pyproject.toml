@@ -15,9 +15,11 @@ fastapi = "*"
 hypercorn = "*"
 loguru = "*"
 orjson = "*"
+redis = { extras = ["hiredis"], version = "*" }
 python = "^3.11"
 python-dotenv = "*"
 python-multipart = "*"
+tenacity = "*"
 uvloop = "*"
 
 [tool.poetry.group.dev.dependencies]
@@ -31,6 +33,7 @@ pytest = "*"
 pytest-cov = "*"
 ruff = "*"
 types-aiofiles = "*"
+types-redis = "*"
 
 [tool.blue]
 line-length = 100
