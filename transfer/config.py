@@ -23,7 +23,7 @@ BUFFER_SIZE: int = int(os.environ['BUFFER_SIZE']) if 'BUFFER_SIZE' in os.environ
 FILE_SIZE_LIMIT: int = (
     int(os.environ['FILE_SIZE_LIMIT']) if 'FILE_SIZE_LIMIT' in os.environ else 5 * MiB
 )
-UPLOAD_DIR: Path = Path(os.getenv('UPLOAD_DIR', '/dev/shm'))  # noqa: S108
+UPLOAD_DIR: Path = Path(os.getenv('UPLOAD_DIR', '/tmp/transfer_files'))  # noqa: S108
 TOKEN_LENGTH: int = int(os.environ['TOKEN_LENGTH']) if 'TOKEN_LENGTH' in os.environ else 8
 TIMEOUT_INTERVAL: int = (
     int(os.environ['TIMEOUT_INTERVAL_MIN']) if 'TIMEOUT_INTERVAL_MIN' in os.environ else 3_600
