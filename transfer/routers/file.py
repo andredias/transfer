@@ -40,11 +40,13 @@ async def upload_file(
     1. In order to prevent name collision, the file is saved in a directory with a random name.
     2. The path to the file is returned as plain text but also set as the Location header.
     """
-    # Content-Length header is not reliable to prevent overflow
-    # see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
 
     if not file.filename:
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Missing filename')
+
+    # save the file
+    # Content-Length header is not reliable to prevent overflow
+    # see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     logger.info(f'Uploading file {file.filename}')
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     path = config.UPLOAD_DIR / token / Path(file.filename).name
@@ -60,6 +62,16 @@ async def upload_file(
     if overflow:
         remove_file_and_parent(path)
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+
+    # schedule file removal
+    scheduler.add_job(
+        remove_file_and_parent,
+        'date',
+        run_date=datetime.utcnow() + timedelta(seconds=config.TIMEOUT_INTERVAL),
+        args=[path],
+    )
+
+    # return the URL location of the file
     if request.headers.get('X-Forwarded-Proto'):  # served by a reverse proxy
         location = urljoin(
             f'{request.headers["X-Forwarded-Proto"]}://{request.headers["X-Forwarded-Host"]}',
@@ -70,13 +82,6 @@ async def upload_file(
             request.url._url, f'{router.prefix}/{path.relative_to(config.UPLOAD_DIR)}'
         )
     response.headers['Location'] = location
-    # schedule file removal
-    scheduler.add_job(
-        remove_file_and_parent,
-        'date',
-        run_date=datetime.utcnow() + timedelta(seconds=config.TIMEOUT_INTERVAL),
-        args=[path],
-    )
     return location
 
 
