@@ -2,6 +2,19 @@ version: "3.9"
 
 services:
 
+    caddy:
+        container_name: caddy
+        image: "caddy:alpine"
+        init: true
+        ports:
+            - "80:80"
+            - "443:443"
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile
+        depends_on:
+            - transfer
+            - redis
+
     redis:
         container_name: redis
         image: redis:latest
@@ -9,7 +22,7 @@ services:
         ports:
             - ${REDIS_PORT:-6379}:6379
 
-    app:
+    transfer:
         container_name: transfer
         image: transfer:latest
         build:

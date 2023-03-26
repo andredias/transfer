@@ -30,7 +30,5 @@ build:
 	docker build -t transfer .
 
 
-smoke_test: build
-	docker run --rm -d -p 5000:5000 --name transfer transfer
-	sleep 2; curl --insecure https://localhost:5000/hello
-	docker stop transfer
+run_in_container:
+	docker compose up --build

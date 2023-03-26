@@ -1,0 +1,16 @@
+localhost {
+
+    handle {
+        reverse_proxy https://transfer:5000 {
+            transport http {
+                tls_insecure_skip_verify
+            }
+        }
+    }
+
+    @compress_exts {
+        not path *.gif *.jpg *.png
+    }
+
+    encode @compress_exts gzip zstd
+}

@@ -96,4 +96,4 @@ Disclaimer
 
 * The service does not provide any guarantee of availability or uptime.
 
-.. HTTPie: https://httpie.io/
+.. HTTPie: https://httpie.io

@@ -52,7 +52,7 @@ async def upload_file(
     path = config.UPLOAD_DIR / token / Path(file.filename).name
     real_file_size = 0
     overflow = False
-    path.parent.mkdir()
+    path.parent.mkdir(parents=True)
     async with aiofiles.open(path, 'wb') as out_file:
         while content := await file.read(config.BUFFER_SIZE):
             real_file_size += len(content)
