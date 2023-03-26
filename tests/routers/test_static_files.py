@@ -21,15 +21,15 @@ async def test_serve_static_files(client: AsyncClient) -> None:
 
 
 async def test_serve_static_files_that_matches_download_file(client: AsyncClient) -> None:
-    response = await client.get('/scripts/main.js', headers={'Sec-Fetch-Dest': 'script'})
+    response = await client.get('/styles/main.css', headers={'Sec-Fetch-Dest': 'style'})
     assert response.status_code == status.HTTP_200_OK
-    assert response.headers['content-type'] == 'text/javascript; charset=utf-8'
+    assert response.headers['content-type'] == 'text/css; charset=utf-8'
     assert int(response.headers['content-length']) > 1 * KiB
 
     # it should also work without the header
-    response = await client.get('/scripts/main.js')
+    response = await client.get('/styles/main.css')
     assert response.status_code == status.HTTP_200_OK
-    assert response.headers['content-type'] == 'text/javascript; charset=utf-8'
+    assert response.headers['content-type'] == 'text/css; charset=utf-8'
     assert int(response.headers['content-length']) > 1 * KiB
 
 
@@ -39,7 +39,7 @@ async def test_get_static_files_with_invalid_path(client: AsyncClient) -> None:
 
 
 async def test_get_static_files_with_longer_path_than_token(client: AsyncClient) -> None:
-    response = await client.get('/scripts/vendor/modernizr.js')
+    response = await client.get('/fonts/font-awesome/fontawesome-webfont.svg')
     assert response.status_code == status.HTTP_200_OK
-    assert response.headers['content-type'] == 'text/javascript; charset=utf-8'
+    assert response.headers['content-type'] == 'image/svg+xml'
     assert int(response.headers['content-length']) > 1 * KiB
