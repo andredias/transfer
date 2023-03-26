@@ -5,4 +5,5 @@
 !hypercorn.toml
 !selfsigned.*
 !transfer/
+!static/
 **/__pycache__

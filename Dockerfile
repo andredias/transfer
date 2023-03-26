@@ -38,6 +38,7 @@ COPY --chown=nobody:nogroup entrypoint.sh .
 COPY --chown=nobody:nogroup hypercorn.toml .
 COPY --chown=nobody:nogroup selfsigned.* ./
 COPY --chown=nobody:nogroup transfer/ ./transfer
+COPY --chown=nobody:nogroup static/ ./static
 
 EXPOSE 5000
 
