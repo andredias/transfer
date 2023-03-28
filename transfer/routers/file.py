@@ -122,7 +122,6 @@ async def delete_file(
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     remove_file_and_parent(path)
-    return
 
 
 # The next routes handle static content

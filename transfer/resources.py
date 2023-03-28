@@ -35,7 +35,6 @@ def show_config() -> None:
         key: getattr(config, key) for key in sorted(dir(config)) if key[0] in ascii_uppercase
     }
     logger.debug(config_vars)
-    return
 
 
 async def connect_redis() -> None:
@@ -52,11 +51,9 @@ async def connect_redis() -> None:
     except RetryError:
         logger.error('Could not connect to Redis')
         raise
-    return
 
 
 async def disconnect_redis() -> None:
     if config.TESTING:
         await redis.flushdb()
     await redis.close()
-    return
