@@ -40,7 +40,10 @@ types-redis = "*"
 line-length = 100
 
 [tool.pytest.ini_options]
-filterwarnings = ["ignore::DeprecationWarning"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore:The localize method is no longer necessary",
+]
 
 [tool.mypy]
 ignore_missing_imports = true
