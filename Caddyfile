@@ -1,11 +1,7 @@
 localhost {
 
     handle {
-        reverse_proxy https://transfer:5000 {
-            transport http {
-                tls_insecure_skip_verify
-            }
-        }
+        reverse_proxy h2c://transfer:5000
     }
 
     @compress_exts {

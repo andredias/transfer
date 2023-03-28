@@ -34,12 +34,10 @@ ENV ROOT_PATH=/
 
 WORKDIR /app
 USER nobody
-COPY --chown=nobody:nogroup entrypoint.sh .
 COPY --chown=nobody:nogroup hypercorn.toml .
-COPY --chown=nobody:nogroup selfsigned.* ./
 COPY --chown=nobody:nogroup transfer/ ./transfer
 COPY --chown=nobody:nogroup static/ ./static
 
 EXPOSE 5000
 
-ENTRYPOINT ["./entrypoint.sh"]
+CMD ["hypercorn", "--config", "hypercorn.toml", "transfer.main:app"]
