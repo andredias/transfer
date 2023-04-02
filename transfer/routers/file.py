@@ -73,8 +73,9 @@ async def upload_file(
 
     # return the URL location of the file
     if request.headers.get('X-Forwarded-Proto'):  # served by a reverse proxy
+        host = request.headers.get('X-Forwarded-Host') or request.headers.get('Host')
         location = urljoin(
-            f'{request.headers["X-Forwarded-Proto"]}://{request.headers["X-Forwarded-Host"]}',
+            f'{request.headers["X-Forwarded-Proto"]}://{host}',
             f'{request.url.path}{router.prefix}{path.relative_to(config.UPLOAD_DIR)}',
         )
     else:  # served directly
