@@ -90,23 +90,21 @@ async def upload_file(
 async def download_file(
     token: str,
     filename: str,
-    request: Request,
 ) -> FileResponse:
     """
     Download a file
 
     The token is the name of the directory where the file is stored.
     """
-    if (
-        request.headers.get('Sec-Fetch-Dest') or len(token) < config.TOKEN_LENGTH
-    ):  # it came from a web page
-        path = Path('static', token, filename)
-    else:
-        path = config.UPLOAD_DIR / token / filename
-    logger.debug(f'Downloading file {path}')
-    if not path.exists():
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
-    return FileResponse(path)
+    paths = (
+        Path('static', token, filename),
+        Path(config.UPLOAD_DIR, token, filename),
+    )
+    for path in paths:
+        if path.exists():
+            logger.debug(f'Downloading file {path}')
+            return FileResponse(path)
+    raise HTTPException(status.HTTP_404_NOT_FOUND)
 
 
 @router.delete('/{token}/{filename}', status_code=status.HTTP_204_NO_CONTENT)
