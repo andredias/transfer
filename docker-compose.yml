@@ -13,14 +13,6 @@ services:
             - ./Caddyfile:/etc/caddy/Caddyfile
         depends_on:
             - transfer
-            - redis
-
-    redis:
-        container_name: redis
-        image: redis:latest
-        init: true
-        ports:
-            - ${REDIS_PORT:-6379}:6379
 
     transfer:
         container_name: transfer
@@ -30,7 +22,3 @@ services:
         init: true
         ports:
             - "5000:5000"
-        depends_on:
-            - redis
-        environment:
-            REDIS_HOST: redis

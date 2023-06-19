@@ -28,7 +28,3 @@ TOKEN_LENGTH: int = int(os.environ['TOKEN_LENGTH']) if 'TOKEN_LENGTH' in os.envi
 TIMEOUT_INTERVAL: int = (
     int(os.environ['TIMEOUT_INTERVAL_MIN']) if 'TIMEOUT_INTERVAL_MIN' in os.environ else 3_600
 )  # in seconds
-
-REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
-REDIS_PORT = os.getenv('REDIS_PORT', '6379')
-REDIS_URL = os.getenv('REDIS_URL') or f'redis://{REDIS_HOST}:{REDIS_PORT}'
