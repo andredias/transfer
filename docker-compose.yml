@@ -22,3 +22,15 @@ services:
         init: true
         ports:
             - "5000:5000"
+        environment:
+            ENV: ${ENV:-development}
+        volumes:
+            - .:/app
+        command:
+            [
+                "hypercorn",
+                "--config",
+                "hypercorn.toml",
+                "--reload",
+                "transfer.main:app"
+            ]

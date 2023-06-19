@@ -2,13 +2,11 @@ SHELL := /bin/bash -O globstar
 
 
 run:
-	hypercorn --reload --config=hypercorn.toml 'transfer.main:app'
+	@ docker compose up -d
 
 
 test:
-	pytest -x --cov-report term-missing --cov-report html --cov-branch \
-	       --cov transfer/
-
+	pytest -x --cov-report=term-missing --cov-report=html --cov-branch --cov=transfer/
 
 lint:
 	@echo
