@@ -6,7 +6,6 @@ from urllib.parse import urljoin
 import aiofiles
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse, PlainTextResponse
-from fastapi_limiter.depends import RateLimiter
 from loguru import logger
 
 from .. import config
@@ -22,10 +21,7 @@ async def valid_content_length(content_length: int = Header(..., lt=config.FILE_
 
 @router.post(
     '/',
-    dependencies=[
-        Depends(valid_content_length),
-        Depends(RateLimiter(times=config.RATE_LIMIT_TIMES, seconds=config.RATE_LIMIT_SECONDS)),
-    ],
+    dependencies=[Depends(valid_content_length)],
     response_class=PlainTextResponse,
     status_code=status.HTTP_201_CREATED,
 )

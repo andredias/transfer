@@ -32,10 +32,3 @@ TIMEOUT_INTERVAL: int = (
 REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 REDIS_URL = os.getenv('REDIS_URL') or f'redis://{REDIS_HOST}:{REDIS_PORT}'
-
-RATE_LIMIT_TIMES: int = (
-    int(os.environ['RATE_LIMIT_TIMES']) if 'RATE_LIMIT_TIMES' in os.environ else 5
-)
-RATE_LIMIT_SECONDS: int = (
-    int(os.environ['RATE_LIMIT_SECONDS']) if 'RATE_LIMIT_SECONDS' in os.environ else 3_600
-)
