@@ -1,28 +1,24 @@
 FROM python:3.11-slim as builder
 LABEL maintainer="André Felipe Dias <andref.dias@gmail.com>"
 
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-
 RUN DEBIAN_FRONTEND=noninteractive apt-get update && \
-    apt-get install -y --no-install-recommends build-essential libffi-dev libxml2-dev \
-    libxslt-dev curl libpq-dev && \
+    apt-get install -y --no-install-recommends build-essential curl && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-# Poetry 1.4.0 has a bug that prevents it from installing Hypercorn
-ENV POETRY_VERSION=1.3.2
-RUN curl https://install.python-poetry.org | python -
-
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 RUN python -m venv /venv
-ENV PATH=/venv/bin:/root/.local/bin:${PATH}
+
+ENV POETRY_VERSION=1.5.1
+ENV POETRY_HOME=/opt/poetry
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+RUN curl https://install.python-poetry.org | python -
 
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
-
 RUN . /venv/bin/activate; \
-    poetry install --only main --no-interaction
+    $POETRY_HOME/bin/poetry install --only main --no-interaction
 
 # ---------------------------------------------------------
 
