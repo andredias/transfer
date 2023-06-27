@@ -4,7 +4,10 @@ services:
 
     caddy:
         container_name: caddy
-        image: "caddy:alpine"
+        build:
+            context: .
+            dockerfile: Dockerfile.caddy
+        image: "custom-caddy:latest"
         init: true
         ports:
             - "80:80"
@@ -13,6 +16,8 @@ services:
             - ./Caddyfile:/etc/caddy/Caddyfile
         depends_on:
             - transfer
+        environment:
+            - ENV=${ENV:-production}
 
     transfer:
         container_name: transfer
