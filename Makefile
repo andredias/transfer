@@ -12,11 +12,11 @@ test: test_rate_limit
 test_rate_limit:
 	trap 'docker compose down' EXIT; \
 	docker compose down; docker compose up -d; sleep 2; \
-	https --verify no --check-status --form POST localhost file@./Makefile; \
+	httpx https://localhost --http2 --no-verify --method POST -f file Makefile; \
 	[ $$? -eq 0 ] || exit 1; \
-	https --verify no --check-status --form POST localhost file@./Makefile; \
+	httpx https://localhost --http2 --no-verify --method POST -f file Makefile; \
 	[ $$? -eq 0 ] || exit 2; \
-	https --verify no --check-status --form POST localhost file@./Makefile; \
+	httpx https://localhost --http2 --no-verify --method POST -f file Makefile; \
 	[ $$? -ne 0 ] || exit 3; \
 	echo 'Rate limit is working'; exit 0
 
