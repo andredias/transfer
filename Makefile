@@ -9,9 +9,9 @@ test: test_rate_limit
 	pytest -x --cov-report=term-missing --cov-report=html --cov-branch --cov=transfer/
 
 
-test_rate_limit:
+test_rate_limit: build
 	trap 'docker compose down' EXIT; \
-	docker compose down; docker compose up -d; sleep 2; \
+	docker compose down; docker compose up -d; sleep 3; \
 	httpx https://localhost --http2 --no-verify --method POST -f file Makefile; \
 	[ $$? -eq 0 ] || exit 1; \
 	httpx https://localhost --http2 --no-verify --method POST -f file Makefile; \
@@ -38,7 +38,7 @@ format:
 
 
 build:
-	docker build -t transfer .
+	docker compose build --pull
 
 
 run_in_container:
