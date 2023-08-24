@@ -5,7 +5,9 @@ run:
 	@ docker compose up -d
 
 
-test: test_rate_limit
+test: test_rate_limit unit_test
+
+unit_test:
 	pytest -x --cov-report=term-missing --cov-report=html --cov-branch --cov=transfer/
 
 
