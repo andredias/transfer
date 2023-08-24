@@ -1,15 +1,13 @@
-import secrets
 from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
-import aiofiles
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse, PlainTextResponse
 from loguru import logger
 
 from .. import config
-from ..file_utils import remove_file_and_parent
+from ..file_utils import remove_file_transfered, save_file
 from ..resources import scheduler
 
 router = APIRouter()
@@ -44,27 +42,14 @@ async def upload_file(
     # Content-Length header is not reliable to prevent overflow
     # see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     logger.info(f'Uploading file {file.filename}')
-    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
-    path = config.UPLOAD_DIR / token / Path(file.filename).name
-    real_file_size = 0
-    overflow = False
-    path.parent.mkdir(parents=True)
-    async with aiofiles.open(path, 'wb') as out_file:
-        while content := await file.read(config.BUFFER_SIZE):
-            real_file_size += len(content)
-            if overflow := real_file_size > config.FILE_SIZE_LIMIT:
-                break
-            await out_file.write(content)
-    if overflow:
-        remove_file_and_parent(path)
-        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+    token, filename = await save_file(file.filename, file)
 
     # schedule file removal
     scheduler.add_job(
-        remove_file_and_parent,
+        remove_file_transfered,
         'date',
         run_date=datetime.utcnow() + timedelta(seconds=config.TIMEOUT_INTERVAL),
-        args=[path],
+        args=[token, filename],
     )
 
     # return the URL location of the file
@@ -72,12 +57,10 @@ async def upload_file(
         host = request.headers.get('X-Forwarded-Host') or request.headers.get('Host')
         location = urljoin(
             f'{request.headers["X-Forwarded-Proto"]}://{host}',
-            f'{request.url.path}{router.prefix}{path.relative_to(config.UPLOAD_DIR)}',
+            f'{request.url.path}{router.prefix}{token}/{filename}',
         )
     else:  # served directly
-        location = urljoin(
-            request.url._url, f'{router.prefix}/{path.relative_to(config.UPLOAD_DIR)}'
-        )
+        location = urljoin(request.url._url, f'{router.prefix}/{token}/{filename}')
     response.headers['Location'] = location
     return location
 
@@ -116,7 +99,7 @@ async def delete_file(
     path = config.UPLOAD_DIR / token / filename
     if not path.exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    remove_file_and_parent(path)
+    remove_file_transfered(token, filename)
 
 
 # The next routes handle static content

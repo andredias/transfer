@@ -14,7 +14,7 @@ async def test_upload_file_ok_local(tmp_path: Path, client: AsyncClient) -> None
     filename = tmp_path / 'dummy.txt'
     filename.write_text('hello world')
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
-    with patch('transfer.routers.file.secrets.token_urlsafe', return_value=token):
+    with patch('transfer.file_utils.secrets.token_urlsafe', return_value=token):
         resp = await client.post('/', files={'file': open(str(filename), 'rb')})
     assert resp.status_code == status.HTTP_201_CREATED
     assert resp.headers['Location'] == resp.text == f'http://testserver/{token}/{filename.name}'
@@ -26,7 +26,7 @@ async def test_upload_file_ok_proxy_server(tmp_path: Path, client: AsyncClient) 
     filename = tmp_path / 'hello.txt'
     filename.write_text('hello world')
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
-    with patch('transfer.routers.file.secrets.token_urlsafe', return_value=token):
+    with patch('transfer.file_utils.secrets.token_urlsafe', return_value=token):
         resp = await client.post(
             '/',
             files={'file': open(str(filename), 'rb')},
@@ -51,7 +51,7 @@ async def test_upload_file_over_size_limit(tmp_path: Path, client: AsyncClient) 
 
     # try to cheat by setting Content-Length header
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
-    with patch('transfer.routers.file.secrets.token_urlsafe', return_value=token):
+    with patch('transfer.file_utils.secrets.token_urlsafe', return_value=token):
         resp = await client.post(
             '/',
             files={'file': open(str(filename), 'rb')},
