@@ -42,7 +42,10 @@ async def upload_file(
     # Content-Length header is not reliable to prevent overflow
     # see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     logger.info(f'Uploading file {file.filename}')
-    token, filename = await save_file(file.filename, file)
+    try:
+        token, filename = await save_file(file.filename, file)
+    except OSError:
+        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE) from None
 
     # schedule file removal
     scheduler.add_job(
@@ -96,10 +99,10 @@ async def delete_file(
 
     The token is the name of the directory where the file is stored.
     """
-    path = config.UPLOAD_DIR / token / filename
-    if not path.exists():
-        raise HTTPException(status.HTTP_404_NOT_FOUND)
-    remove_file_transfered(token, filename)
+    try:
+        remove_file_transfered(token, filename)
+    except FileNotFoundError:
+        raise HTTPException(status.HTTP_404_NOT_FOUND) from None
 
 
 # The next routes handle static content

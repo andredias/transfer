@@ -4,7 +4,6 @@ from time import time
 from typing import Protocol
 
 import aiofiles
-from fastapi import HTTPException, status
 from loguru import logger
 
 from . import config
@@ -16,6 +15,9 @@ def remove_file_transfered(token: str, filename: str) -> None:
     """
     logger.info(f'Time out: Removing file {token}/{filename}')
     # since token is supposed to be unique, filename is not needed
+    path = config.UPLOAD_DIR / token / filename
+    if not path.exists():
+        raise FileNotFoundError(f'File {token}/{filename} does not exist')
     rmtree(config.UPLOAD_DIR / token)
 
 
@@ -55,5 +57,5 @@ async def save_file(filename: str, file: Readable) -> tuple[str, str]:
             await out_file.write(content)
     if overflow:
         remove_file_transfered(token, filename)
-        raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE)
+        raise OSError(f'File {filename} is too large')
     return token, filename
