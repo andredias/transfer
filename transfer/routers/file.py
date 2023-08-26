@@ -13,7 +13,9 @@ from ..resources import scheduler
 router = APIRouter()
 
 
-async def valid_content_length(content_length: int = Header(..., lt=config.FILE_SIZE_LIMIT)) -> int:
+async def valid_content_length(
+    content_length: int = Header(None, lt=config.FILE_SIZE_LIMIT)
+) -> int:
     return content_length
 
 
