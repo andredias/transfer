@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from urllib.parse import urljoin
 
+from apscheduler.jobstores.base import JobLookupError
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse, PlainTextResponse
 from loguru import logger
@@ -55,6 +56,7 @@ async def upload_file(
         'date',
         run_date=datetime.utcnow() + timedelta(seconds=config.TIMEOUT_INTERVAL),
         args=[token, filename],
+        id=f'{token}/{filename}',
     )
 
     # return the URL location of the file
@@ -105,6 +107,10 @@ async def delete_file(
         remove_file_transfered(token, filename)
     except FileNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND) from None
+    try:
+        scheduler.remove_job(f'{token}/{filename}')
+    except JobLookupError as e:
+        logger.warning(str(e))
 
 
 # The next routes handle static content

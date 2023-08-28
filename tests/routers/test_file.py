@@ -1,13 +1,15 @@
 import secrets
 from pathlib import Path
+from typing import Final
 from unittest.mock import patch
 
 from fastapi import status
 from httpx import AsyncClient
 
 from transfer import config
+from transfer.resources import scheduler
 
-SIZE_LIMIT = 2**10
+SIZE_LIMIT: Final[int] = 2**10  # 1KiB
 
 
 async def test_upload_file_ok_local(tmp_path: Path, client: AsyncClient) -> None:
@@ -99,3 +101,18 @@ async def test_delete_non_existing_file(client: AsyncClient) -> None:
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     resp = await client.delete(f'/{token}/{filename}')
     assert resp.status_code == status.HTTP_404_NOT_FOUND
+
+
+async def test_job_removal_after_manual_deletion(tmp_path: Path, client: AsyncClient) -> None:
+    filepath = tmp_path / 'dummy.txt'
+    filepath.write_text('hello world')
+    resp = await client.post('/', files={'file': open(str(filepath), 'rb')})
+    assert resp.status_code == status.HTTP_201_CREATED
+    link = resp.headers['Location']
+    token, filename = link.split('/')[-2:]
+    job_id = f'{token}/{filename}'
+    assert scheduler.get_job(job_id) is not None
+
+    resp = await client.delete(link)
+    assert resp.status_code == status.HTTP_204_NO_CONTENT
+    assert scheduler.get_job(job_id) is None
