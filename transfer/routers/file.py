@@ -105,10 +105,9 @@ async def delete_file(
     """
     try:
         remove_file_transfered(token, filename)
+        scheduler.remove_job(f'{token}/{filename}')
     except FileNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND) from None
-    try:
-        scheduler.remove_job(f'{token}/{filename}')
     except JobLookupError as e:
         logger.warning(str(e))
 
