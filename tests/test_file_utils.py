@@ -3,6 +3,7 @@ from time import time
 from unittest.mock import patch
 
 import aiofiles
+from pytest import raises
 
 from transfer import config
 from transfer.file_utils import file_exists, remove_expired_files, remove_file, save_file
@@ -46,3 +47,15 @@ async def test_file_cycle(tmp_path: Path) -> None:
     assert file_exists(token, filename)
     remove_file(token, filename)
     assert not file_exists(token, filename)
+
+
+@patch.dict(config.__dict__, {'FILE_SIZE_LIMIT': 10})
+async def test_file_overflow(tmp_path: Path) -> None:
+    """
+    Test that a file that is too large is not saved
+    """
+    filename = tmp_path / 'dummy.txt'
+    filename.write_text('hello world')
+    async with aiofiles.open(filename, 'rb') as file:
+        with raises(OSError):
+            await save_file(file)
