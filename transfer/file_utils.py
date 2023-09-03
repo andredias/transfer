@@ -9,29 +9,32 @@ from loguru import logger
 from . import config
 
 
-def remove_file_transfered(token: str, filename: str) -> None:
+def file_exists(token: str, filename: str) -> bool:
+    return (config.UPLOAD_DIR / token / filename).exists()
+
+
+def remove_file(token: str, filename: str) -> None:
     """
     Remove a file and its parent directory
     """
-    logger.info(f'Time out: Removing file {token}/{filename}')
-    # since token is supposed to be unique, filename is not needed
-    path = config.UPLOAD_DIR / token / filename
-    if not path.exists():
-        raise FileNotFoundError(f'File {token}/{filename} does not exist')
     rmtree(config.UPLOAD_DIR / token)
 
 
-def timeout_job() -> None:
+def remove_expired_files() -> None:
     """
     Remove files that have been stored for too long
     """
     timeout_ref = time() - config.TIMEOUT_INTERVAL
     for path in config.UPLOAD_DIR.glob('*/*'):
         if path.stat().st_mtime < timeout_ref:
-            remove_file_transfered(*path.relative_to(config.UPLOAD_DIR).parts)
+            remove_file(*path.relative_to(config.UPLOAD_DIR).parts)
 
 
 class Readable(Protocol):
+    """
+    It makes easier to mock the aiofiles stream during tests
+    """
+
     async def read(self, size: int) -> bytes:
         ...
 
@@ -42,7 +45,6 @@ async def save_file(filename: str, file: Readable) -> tuple[str, str]:
     Content-Length header is not reliable to prevent overflow
     see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     """
-    # TODO: sanitize filename
     logger.info(f'Uploading file {filename}')
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     path = config.UPLOAD_DIR / token / filename
@@ -56,6 +58,6 @@ async def save_file(filename: str, file: Readable) -> tuple[str, str]:
                 break
             await out_file.write(content)
     if overflow:
-        remove_file_transfered(token, filename)
+        remove_file(token, filename)
         raise OSError(f'File {filename} is too large')
     return token, filename

@@ -1,40 +1,48 @@
-import secrets
+from pathlib import Path
 from time import time
 from unittest.mock import patch
 
+import aiofiles
+
 from transfer import config
-from transfer.file_utils import remove_file_transfered, timeout_job
+from transfer.file_utils import file_exists, remove_expired_files, remove_file, save_file
 
 
-def test_remove_file() -> None:
+async def test_remove_expired_files(tmp_path: Path) -> None:
     """
-    Test that remove_file() removes a file and its parent directory
+    Test removal of files that have been stored for too long
     """
-    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
-    filename = 'dummy.txt'
-    path = config.UPLOAD_DIR / token / filename
-    path.parent.mkdir(parents=True)
-    path.write_text('dummy')
-    assert path.exists()
-    remove_file_transfered(token, filename)
-    assert not path.exists()
-    assert not path.parent.exists()
+    dummy_1 = tmp_path / 'dummy_1.txt'
+    dummy_1.write_text('dummy')
+    async with aiofiles.open(dummy_1, 'rb') as file:
+        path_1 = await save_file('dummy_1.txt', file)
+    assert file_exists(*path_1)
 
+    dummy_2 = tmp_path / 'dummy_2.txt'
+    dummy_2.write_text('dummy')
+    async with aiofiles.open(dummy_2, 'rb') as file:
+        path_2 = await save_file('dummy_2.txt', file)
+    assert file_exists(*path_2)
 
-def test_timeout_job() -> None:
-    """
-    Test that timeout_job() removes files that have been stored for too long
-    """
-    token = secrets.token_urlsafe(config.TOKEN_LENGTH)
-    path = config.UPLOAD_DIR / token / 'dummy.txt'
-    path.parent.mkdir(parents=True)
-    path.write_text('dummy')
+    # no expired files yet
+    remove_expired_files()
+    assert file_exists(*path_1)
+    assert file_exists(*path_2)
 
-    timeout_job()
-    assert path.exists()
-
-    # move to the future...
+    # fake a time in the  future...
     with patch('transfer.file_utils.time', return_value=time() + config.TIMEOUT_INTERVAL):
-        timeout_job()
-    assert not path.exists()
-    assert not path.parent.exists()
+        remove_expired_files()
+    assert not file_exists(*path_1)
+    assert not file_exists(*path_2)
+
+
+async def test_file_cycle(tmp_path: Path) -> None:
+    assert not file_exists('tralala', 'dummy.txt')
+
+    dummy = tmp_path / 'dummy.txt'
+    dummy.write_text('hello world')
+    async with aiofiles.open(dummy, 'rb') as file:
+        token, filename = await save_file('dummy.txt', file)
+    assert file_exists(token, filename)
+    remove_file(token, filename)
+    assert not file_exists(token, filename)

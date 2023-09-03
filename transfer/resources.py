@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from loguru import logger
 
 from . import config
-from .file_utils import timeout_job
+from .file_utils import remove_expired_files
 
 scheduler = AsyncIOScheduler()
 
@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator:  # noqa: ARG001
 async def startup() -> None:
     show_config()
     # insert here calls to connect to database and other services
-    scheduler.add_job(timeout_job, 'interval', days=1)
+    scheduler.add_job(remove_expired_files, 'interval', days=1)
     scheduler.start()
     logger.info('started...')
 
