@@ -15,13 +15,13 @@ async def test_remove_expired_files(tmp_path: Path) -> None:
     dummy_1 = tmp_path / 'dummy_1.txt'
     dummy_1.write_text('dummy')
     async with aiofiles.open(dummy_1, 'rb') as file:
-        path_1 = await save_file('dummy_1.txt', file)
+        path_1 = await save_file(file)
     assert file_exists(*path_1)
 
     dummy_2 = tmp_path / 'dummy_2.txt'
     dummy_2.write_text('dummy')
     async with aiofiles.open(dummy_2, 'rb') as file:
-        path_2 = await save_file('dummy_2.txt', file)
+        path_2 = await save_file(file)
     assert file_exists(*path_2)
 
     # no expired files yet
@@ -42,7 +42,7 @@ async def test_file_cycle(tmp_path: Path) -> None:
     dummy = tmp_path / 'dummy.txt'
     dummy.write_text('hello world')
     async with aiofiles.open(dummy, 'rb') as file:
-        token, filename = await save_file('dummy.txt', file)
+        token, filename = await save_file(file)
     assert file_exists(token, filename)
     remove_file(token, filename)
     assert not file_exists(token, filename)

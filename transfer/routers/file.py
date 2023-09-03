@@ -46,7 +46,7 @@ async def upload_file(
     # see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     logger.info(f'Uploading file {file.filename}')
     try:
-        token, filename = await save_file(file.filename, file)
+        token, filename = await save_file(file)
     except OSError:
         raise HTTPException(status.HTTP_413_REQUEST_ENTITY_TOO_LARGE) from None
 

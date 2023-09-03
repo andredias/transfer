@@ -1,10 +1,10 @@
 import secrets
+from pathlib import Path
 from shutil import rmtree
 from time import time
 from typing import Protocol
 
 import aiofiles
-from loguru import logger
 
 from . import config
 
@@ -13,7 +13,7 @@ def file_exists(token: str, filename: str) -> bool:
     return (config.UPLOAD_DIR / token / filename).exists()
 
 
-def remove_file(token: str, filename: str) -> None:
+def remove_file(token: str, filename: str) -> None:  # noqa: ARG001
     """
     Remove a file and its parent directory
     """
@@ -39,13 +39,14 @@ class Readable(Protocol):
         ...
 
 
-async def save_file(filename: str, file: Readable) -> tuple[str, str]:
+async def save_file(file: Readable) -> tuple[str, str]:
     """
     save the file
     Content-Length header is not reliable to prevent overflow
     see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     """
-    logger.info(f'Uploading file {filename}')
+    # UploadFile has filename and aiofile has name attribute
+    filename = Path(getattr(file, 'filename', '') or getattr(file, 'name', 'no-name')).name
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     path = config.UPLOAD_DIR / token / filename
     real_file_size = 0
