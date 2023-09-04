@@ -13,28 +13,20 @@ async def test_remove_expired_files(tmp_path: Path) -> None:
     """
     Test removal of files that have been stored for too long
     """
-    dummy_1 = tmp_path / 'dummy_1.txt'
-    dummy_1.write_text('dummy')
-    async with aiofiles.open(dummy_1, 'rb') as file:
-        path_1 = await save_file(file)
-    assert file_exists(*path_1)
-
-    dummy_2 = tmp_path / 'dummy_2.txt'
-    dummy_2.write_text('dummy')
-    async with aiofiles.open(dummy_2, 'rb') as file:
-        path_2 = await save_file(file)
-    assert file_exists(*path_2)
+    dummy = tmp_path / 'dummy.txt'
+    dummy.write_text('dummy')
+    async with aiofiles.open(dummy, 'rb') as file:
+        token, filename = await save_file(file)
+    assert file_exists(token, filename)
 
     # no expired files yet
     remove_expired_files()
-    assert file_exists(*path_1)
-    assert file_exists(*path_2)
+    assert file_exists(token, filename)
 
     # fake a time in the  future...
     with patch('transfer.file_utils.time', return_value=time() + config.TIMEOUT_INTERVAL):
         remove_expired_files()
-    assert not file_exists(*path_1)
-    assert not file_exists(*path_2)
+    assert not file_exists(token, filename)
 
 
 async def test_file_cycle(tmp_path: Path) -> None:
