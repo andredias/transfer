@@ -26,11 +26,7 @@ async def valid_content_length(
     response_class=PlainTextResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def upload_file(
-    file: UploadFile,
-    request: Request,
-    response: Response,
-) -> str:
+async def upload_file(file: UploadFile, request: Request, response: Response) -> str:
     """
     Upload a file
 
@@ -73,10 +69,7 @@ async def upload_file(
 
 
 @router.get('/{token}/{filename}', status_code=status.HTTP_200_OK)
-async def download_file(
-    token: str,
-    filename: str,
-) -> FileResponse:
+async def download_file(token: str, filename: str) -> FileResponse:
     """
     Download a file
 
@@ -94,10 +87,7 @@ async def download_file(
 
 
 @router.delete('/{token}/{filename}', status_code=status.HTTP_204_NO_CONTENT)
-async def delete_file(
-    token: str,
-    filename: str,
-) -> None:
+async def delete_file(token: str, filename: str) -> None:
     """
     Delete a file
 

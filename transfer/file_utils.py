@@ -55,7 +55,8 @@ async def save_file(file: Readable) -> tuple[str, str]:
     async with aiofiles.open(path, 'wb') as out_file:
         while content := await file.read(config.BUFFER_SIZE):
             real_file_size += len(content)
-            if overflow := real_file_size > config.FILE_SIZE_LIMIT:
+            overflow = real_file_size > config.FILE_SIZE_LIMIT
+            if overflow:
                 break
             await out_file.write(content)
     if overflow:
