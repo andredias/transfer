@@ -1,32 +1,26 @@
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Annotated
 from urllib.parse import urljoin
 
-from apscheduler.jobstores.base import JobLookupError
-from fastapi import APIRouter, Depends, Header, HTTPException, Request, Response, UploadFile, status
+from fastapi import APIRouter, Header, HTTPException, Request, Response, UploadFile, status
 from fastapi.responses import FileResponse, PlainTextResponse
 from loguru import logger
 
 from .. import config
-from ..file_utils import remove_file, save_file
+from ..file_utils import file_exists, remove_file, save_file
 from ..resources import scheduler
 
 router = APIRouter()
 
 
-async def valid_content_length(
-    content_length: int = Header(None, lt=config.FILE_SIZE_LIMIT)
-) -> int:
-    return content_length
-
-
-@router.post(
-    '/',
-    dependencies=[Depends(valid_content_length)],
-    response_class=PlainTextResponse,
-    status_code=status.HTTP_201_CREATED,
-)
-async def upload_file(file: UploadFile, request: Request, response: Response) -> str:
+@router.post('/', response_class=PlainTextResponse, status_code=status.HTTP_201_CREATED)
+async def upload_file(
+    file: UploadFile,
+    request: Request,
+    response: Response,
+    content_length: Annotated[int, Header(lte=config.FILE_SIZE_LIMIT)],  # noqa: ARG001
+) -> str:
     """
     Upload a file
 
@@ -62,7 +56,7 @@ async def upload_file(file: UploadFile, request: Request, response: Response) ->
             f'{request.headers["X-Forwarded-Proto"]}://{host}',
             f'{request.url.path}{router.prefix}{token}/{filename}',
         )
-    else:  # served directly
+    else:  # served locally (development or testing)
         location = urljoin(request.url._url, f'{router.prefix}/{token}/{filename}')
     response.headers['Location'] = location
     return location
@@ -72,8 +66,6 @@ async def upload_file(file: UploadFile, request: Request, response: Response) ->
 async def download_file(token: str, filename: str) -> FileResponse:
     """
     Download a file
-
-    The token is the name of the directory where the file is stored.
     """
     paths = (
         Path('static', token, filename),
@@ -81,7 +73,7 @@ async def download_file(token: str, filename: str) -> FileResponse:
     )
     for path in paths:
         if path.exists():
-            logger.debug(f'Downloading file {path}')
+            logger.debug(f'Downloading file {token}/{filename}')
             return FileResponse(path)
     raise HTTPException(status.HTTP_404_NOT_FOUND)
 
@@ -90,16 +82,12 @@ async def download_file(token: str, filename: str) -> FileResponse:
 async def delete_file(token: str, filename: str) -> None:
     """
     Delete a file
-
-    The token is the name of the directory where the file is stored.
     """
-    try:
-        remove_file(token, filename)
-        scheduler.remove_job(f'{token}/{filename}')
-    except FileNotFoundError:
-        raise HTTPException(status.HTTP_404_NOT_FOUND) from None
-    except JobLookupError as e:
-        logger.warning(str(e))
+    if not file_exists(token, filename):
+        raise HTTPException(status.HTTP_404_NOT_FOUND)
+    logger.debug(f'Deleting file {token}/{filename}')
+    remove_file(token, filename)
+    scheduler.remove_job(f'{token}/{filename}')
 
 
 # The next routes handle static content
