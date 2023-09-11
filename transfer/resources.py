@@ -22,14 +22,12 @@ async def lifespan(app: FastAPI) -> AsyncIterator:  # noqa: ARG001
 
 async def startup() -> None:
     show_config()
-    # insert here calls to connect to database and other services
-    scheduler.add_job(remove_expired_files, 'interval', days=1)
     scheduler.start()
+    scheduler.add_job(remove_expired_files, 'interval', days=1)
     logger.info('started...')
 
 
 async def shutdown() -> None:
-    # insert here calls to disconnect from database and other services
     scheduler.shutdown()
     logger.info('...shutdown')
 
