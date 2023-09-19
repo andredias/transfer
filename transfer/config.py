@@ -19,12 +19,8 @@ os.environ['LOGURU_DEBUG_COLOR'] = '<fg #777>'
 
 MiB: Final[int] = 2**20
 
-BUFFER_SIZE: int = int(os.environ['BUFFER_SIZE']) if 'BUFFER_SIZE' in os.environ else 1 * MiB
-FILE_SIZE_LIMIT: int = (
-    int(os.environ['FILE_SIZE_LIMIT']) if 'FILE_SIZE_LIMIT' in os.environ else 5 * MiB
-)
+BUFFER_SIZE: int = int(os.getenv('BUFFER_SIZE') or 1 * MiB)
+FILE_SIZE_LIMIT: int = int(os.getenv('FILE_SIZE_LIMIT') or 5 * MiB)
 UPLOAD_DIR: Path = Path(os.getenv('UPLOAD_DIR', '/tmp/transfer_files'))  # noqa: S108
-TOKEN_LENGTH: int = int(os.environ['TOKEN_LENGTH']) if 'TOKEN_LENGTH' in os.environ else 8
-TIMEOUT_INTERVAL: int = (
-    int(os.environ['TIMEOUT_INTERVAL_MIN']) if 'TIMEOUT_INTERVAL_MIN' in os.environ else 3_600
-)  # in seconds
+TOKEN_LENGTH: int = int(os.getenv('TOKEN_LENGTH') or 8)
+TIMEOUT_INTERVAL: int = int(os.getenv('TIMEOUT_INTERVAL_MIN') or 3_600)  # in seconds

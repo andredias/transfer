@@ -32,8 +32,6 @@ async def upload_file(
         raise HTTPException(status.HTTP_422_UNPROCESSABLE_ENTITY, detail='Missing filename')
 
     # save the file
-    # Content-Length header is not reliable to prevent overflow
-    # see: https://github.com/tiangolo/fastapi/issues/362#issuecomment-584104025
     logger.info(f'Uploading file {file.filename}')
     try:
         token, filename = await save_file(file)
@@ -64,9 +62,6 @@ async def upload_file(
 
 @router.get('/{token}/{filename}', status_code=status.HTTP_200_OK)
 async def download_file(token: str, filename: str) -> FileResponse:
-    """
-    Download a file
-    """
     paths = (
         Path('static', token, filename),
         Path(config.UPLOAD_DIR, token, filename),
@@ -80,9 +75,6 @@ async def download_file(token: str, filename: str) -> FileResponse:
 
 @router.delete('/{token}/{filename}', status_code=status.HTTP_204_NO_CONTENT)
 async def delete_file(token: str, filename: str) -> None:
-    """
-    Delete a file
-    """
     if not file_exists(token, filename):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
     logger.debug(f'Deleting file {token}/{filename}')

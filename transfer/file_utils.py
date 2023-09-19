@@ -49,9 +49,9 @@ async def save_file(file: Readable) -> tuple[str, str]:
     filename = Path(getattr(file, 'filename', '') or getattr(file, 'name', 'no-name')).name
     token = secrets.token_urlsafe(config.TOKEN_LENGTH)
     path = config.UPLOAD_DIR / token / filename
+    path.parent.mkdir(parents=True)
     real_file_size = 0
     overflow = False
-    path.parent.mkdir(parents=True)
     async with aiofiles.open(path, 'wb') as out_file:
         while content := await file.read(config.BUFFER_SIZE):
             real_file_size += len(content)

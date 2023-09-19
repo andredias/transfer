@@ -57,6 +57,7 @@ async def test_file_lifecycle(tmp_path: Path, client: AsyncClient) -> None:
     assert (
         resp.headers['Location'] == resp.text == f'https://transfer.pronus.io/{token2}/{filename2}'
     )
+    assert scheduler.get_job(f'{token2}/{filename2}') is not None
 
     # get existing file
     resp = await client.get(f'/{token}/{filename}')
