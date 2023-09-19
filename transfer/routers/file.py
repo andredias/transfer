@@ -11,6 +11,7 @@ from .. import config
 from ..file_utils import file_exists, remove_file, save_file
 from ..resources import scheduler
 
+ContentLength = Annotated[int | None, Header(lte=config.FILE_SIZE_LIMIT)]
 router = APIRouter()
 
 
@@ -19,9 +20,7 @@ async def upload_file(
     file: UploadFile,
     request: Request,
     response: Response,
-    content_length: Annotated[
-        int | None, Header(lte=config.FILE_SIZE_LIMIT)
-    ] = None,  # noqa: ARG001
+    content_length: ContentLength = None,  # noqa: ARG001
 ) -> str:
     """
     Upload a file
