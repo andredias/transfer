@@ -19,7 +19,9 @@ async def upload_file(
     file: UploadFile,
     request: Request,
     response: Response,
-    content_length: Annotated[int, Header(lte=config.FILE_SIZE_LIMIT)],  # noqa: ARG001
+    content_length: Annotated[
+        int | None, Header(lte=config.FILE_SIZE_LIMIT)
+    ] = None,  # noqa: ARG001
 ) -> str:
     """
     Upload a file
