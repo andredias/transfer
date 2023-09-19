@@ -19,7 +19,7 @@ jobs:
         - name: Install Poetry
           uses: snok/install-poetry@v1
           with:
-              version: 1.4.1
+              version: 1.5.1
               virtualenvs-in-project: true
 
         - name: Load cached venv
@@ -36,8 +36,12 @@ jobs:
         - name: Linting
           run: poetry run make lint
 
-        - name: Tests
-          run: poetry run make test
+        - name: Unit Tests
+          run: poetry run make unit_test
 
-        - name: Build Docker Image
-          run: make build
+        # Not necessary since rate limit asks for images to be built
+        # - name: Build Docker Image
+        #   run: make build
+
+        - name: Test Rate Limit
+          run: poetry run make test_rate_limit
