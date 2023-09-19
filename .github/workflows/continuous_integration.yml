@@ -43,5 +43,5 @@ jobs:
         # - name: Build Docker Image
         #   run: make build
 
-        - name: Test Rate Limit
+        - name: Rate Limit Test
           run: poetry run make test_rate_limit
