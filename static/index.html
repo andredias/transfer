@@ -36,7 +36,7 @@
                             <span class="code-title"># Given a file:</span>
                             $ echo "Hello World" > hello.txt
 
-                            <span class="code-title"># Upload and Download it using <a href="https://httpie.io" target="_blank">HTTPie</a></span>
+                            <span class="code-title"># Upload, Download or delete it using <a href="https://httpie.io" target="_blank">HTTPie</a>:</span>
 
                             <span class="code-title"># Upload</span>
                             $ http --form POST https://transfer.pronus.io/ file@hello.txt
@@ -49,8 +49,12 @@
                             <span class="code-title"># Download and redirect to file</span>
                             $ http https://transfer.pronus.io/fcJNEaCAoEU/hello.txt > hello.txt
 
+                            <span class="code-title"># Delete the file</span>
+                            $ http DELETE https://transfer.pronus.io/fcJNEaCAoEU/hello.txt > hello.txt
 
-                            <span class="code-title"># Upload and Download it using <a href="https://curl.se/docs/manual.html" target="_blank">curl</a></span>
+
+
+                            <span class="code-title"># Upload, Download or delete it using <a href="https://curl.se/docs/manual.html" target="_blank">curl</a>:</span>
 
                             <span class="code-title"># Upload</span>
                             $ curl --form file=@hello.txt https://transfer.pronus.io/
@@ -62,6 +66,10 @@
 
                             <span class="code-title"># Download and redirect to file</span>
                             $ curl https://transfer.pronus.io/fcJNEaCAoEU/hello.txt -o hello.txt
+
+                            <span class="code-title"># Delete</span>
+                            $ curl -X DELETE https://transfer.pronus.io/fcJNEaCAoEU/hello.txt
+                            Hello World
 
                         </code>
                     </div>
