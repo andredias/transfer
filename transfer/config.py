@@ -16,6 +16,8 @@ TESTING: bool = ENV == 'testing'
 
 os.environ['LOGURU_LEVEL'] = os.getenv('LOG_LEVEL') or (DEBUG and 'DEBUG') or 'INFO'
 os.environ['LOGURU_DEBUG_COLOR'] = '<fg #777>'
+REQUEST_ID_LENGTH = int(os.getenv('REQUEST_ID_LENGTH', '8'))
+PYGMENTS_STYLE = os.getenv('PYGMENTS_STYLE', 'github-dark')
 
 MiB: Final[int] = 2**20
 

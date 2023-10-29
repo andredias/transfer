@@ -1,8 +1,8 @@
-SHELL := /bin/bash -O globstar
+SHELL := /usr/bin/env bash -O globstar
 
 
 run:
-	@ docker compose up -d
+	docker compose up --build
 
 
 test: test_rate_limit unit_test

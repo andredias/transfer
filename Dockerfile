@@ -13,7 +13,7 @@ RUN python -m venv /venv
 ENV POETRY_VERSION=1.5.1
 ENV POETRY_HOME=/opt/poetry
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-RUN curl https://install.python-poetry.org | python -
+RUN curl -sSL https://install.python-poetry.org | python -
 
 WORKDIR /app
 COPY pyproject.toml poetry.lock ./
@@ -33,7 +33,5 @@ USER nobody
 COPY --chown=nobody:nogroup hypercorn.toml .
 COPY --chown=nobody:nogroup transfer/ ./transfer
 COPY --chown=nobody:nogroup static/ ./static
-
-EXPOSE 5000
 
 CMD ["hypercorn", "--config", "hypercorn.toml", "transfer.main:app"]

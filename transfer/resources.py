@@ -7,6 +7,7 @@ from loguru import logger
 
 from . import config
 from .file_utils import remove_expired_files
+from .logging import init_loguru
 
 scheduler = AsyncIOScheduler()
 
@@ -21,6 +22,7 @@ async def lifespan(app: FastAPI) -> AsyncIterator:  # noqa: ARG001
 
 
 async def startup() -> None:
+    init_loguru()
     show_config()
     scheduler.start()
     scheduler.add_job(remove_expired_files, 'interval', days=1)
@@ -34,4 +36,4 @@ async def shutdown() -> None:
 
 def show_config() -> None:
     config_vars = {key: getattr(config, key) for key in sorted(dir(config)) if key.isupper()}
-    logger.debug(config_vars)
+    logger.debug('config vars', **config_vars)

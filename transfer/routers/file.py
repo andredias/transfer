@@ -69,8 +69,8 @@ async def download_file(token: str, filename: str) -> FileResponse:
     )
     for path in paths:
         if path.exists():
-            logger.debug(f'Downloading file {token}/{filename}')
             return FileResponse(path)
+    logger.info(f'file {token}/{filename} not found')
     raise HTTPException(status.HTTP_404_NOT_FOUND)
 
 
@@ -78,7 +78,6 @@ async def download_file(token: str, filename: str) -> FileResponse:
 async def delete_file(token: str, filename: str) -> None:
     if not file_exists(token, filename):
         raise HTTPException(status.HTTP_404_NOT_FOUND)
-    logger.debug(f'Deleting file {token}/{filename}')
     remove_file(token, filename)
     scheduler.remove_job(f'{token}/{filename}')
 
