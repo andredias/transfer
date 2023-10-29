@@ -1,5 +1,5 @@
 import json
-from typing import AsyncIterable
+from collections.abc import AsyncIterable
 from unittest.mock import patch
 
 from fastapi import APIRouter, FastAPI, status
@@ -56,9 +56,7 @@ async def logging_client() -> AsyncIterable[AsyncClient]:
     return
 
 
-async def test_json_logging(
-    logging_client: AsyncClient, capsys: CaptureFixture
-) -> None:
+async def test_json_logging(logging_client: AsyncClient, capsys: CaptureFixture) -> None:
     """
     Test that the log is in JSON format.
     """
@@ -75,9 +73,7 @@ async def test_json_logging(
     assert 'exception' not in log
 
 
-async def test_logging_422_exception(
-    logging_client: AsyncClient, capsys: CaptureFixture
-) -> None:
+async def test_logging_422_exception(logging_client: AsyncClient, capsys: CaptureFixture) -> None:
     """
     Test if the log contains the exception when the request is invalid.
     """
@@ -106,9 +102,7 @@ async def test_logging_422_exception(
     assert 'exception' not in request_log
 
 
-async def test_logging_500_exception(
-    logging_client: AsyncClient, capsys: CaptureFixture
-) -> None:
+async def test_logging_500_exception(logging_client: AsyncClient, capsys: CaptureFixture) -> None:
     """
     Test the log message of a unhandled exception.
     """
